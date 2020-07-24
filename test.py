@@ -5,7 +5,7 @@ Created on Tue Jul 21 07:48:21 2020
 @author: linda
 """
 
-
+"""
 # testing list copies
 
 
@@ -36,4 +36,23 @@ d = [
 
 e = [ [1, 1, 2, 2], [2, 2, 1, 1], [0, 0, 0, 3]]
 
-print(e in d)
+print(e in d)"""
+
+"""
+#logistic regression
+
+
+ma = met + wea + arm
+se = tex + arm + art
+sc = woo + art + jry
+
+
+d + e + f = 100, 
+g + h + i = 100, 
+j + k + l = 100, 
+j=d, 
+j=g, 
+j=k, 
+j=h+l, 
+j=e+i, 
+j=f"""

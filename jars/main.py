@@ -302,17 +302,107 @@ class State:
                 break
             currentNode = currentNode.parent
 
+    def Deepcopy(self):
+        copyState = State(deepcopy(self.jars))
+        copyState.depth = self.depth
+        copyState.parent = self.parent
+        return copyState
 
+class StreamlineSolution():
+    
+    def __init__(self, initSolution):
+        self.initSolution = initSolution
+        self.initSolution.PrintJars()
+        self.initStepsList = StreamlineSolution.getStepsList(initSolution)
+        print(self.initStepsList)
+        self.shortList = self.streamLineSteps(self.initStepsList)
+        print("Initial length: "+str(len(self.initStepsList))+" + New Length: "+str(len(self.shortList)))
+        
+    def streamLineSteps(self, initList):
+        shortList = self.shortenStepsList(self.initStepsList)
+        
+        for i in range(5):
+            shortList = shortList[:i]+self.shortenStepsList(shortList[i:])
+            
+        return shortList
+        
+        pass
+        
+    @staticmethod
+    def getStepsList(finalSolution):
+        currentNode = finalSolution
+        stepsList = []
+        while True:
+            stepsList.append(currentNode)       
+            if currentNode.parent is None:
+                break
+            currentNode = currentNode.parent                
+        stepsList.reverse() # so the initial list is in order first step->last steps
+        return stepsList
+    
+    def shortenStepsList(self, stepsList):
+        if len(stepsList)<=2:
+            return stepsList
+        elif len(stepsList)>6:
+            short1 = self.shortenStepsList(stepsList[:5])
+            short2 = self.shortenStepsList(stepsList[6:])
+            shortenedStepsList = short1+short2
+        else:
+            shortenedStepsList = self.BreadthFirstSearch(stepsList[0], stepsList[-1])
+        if shortenedStepsList is not None:
+            return shortenedStepsList
+        else:
+            return stepsList
+    
+    def BreadthFirstSearch(self, initState, finalState):        
+        start = time.perf_counter()
+        end = 0
+        closedList = ClosedList(maxlen = 1000)
+        openList = [initState]
+        count = 0
+        try:
+            while len(openList)>0:
+                currentState = openList.pop()
+                closedList.Add(currentState.jars)
+                if currentState.jars==finalState.jars:
+                    end = time.perf_counter()
+                    statusstr = "Solution Time: "+ str((end-start))[:5] 
+                    statusstr += " (Open List: "+str(len(openList))
+                    statusstr += ") Depth: "+str(currentState.depth)
+                    print(statusstr)
+                    return self.GetSteps(initState, currentState)
+    
+                for child in currentState.Children:
+                    if not closedList.Contained(child.jars):
+                        openList.insert(0,child)
+                        
+                count = count+1
+                if count %10000==0:
+                    print("Still searching:"+str(count))
+                    currentState.PrintJars()
+                            
+    
+        except KeyboardInterrupt:
+            print("early release:")
 
-
-
-class StreamlineSolution(defaultSolution):
-    
-    
-    
-    
-    
-    return defaultSolution
+    def GetSteps(self, initState, currentState):
+        stepsList = [currentState]
+        tempState = currentState
+        count = 0
+        while True:
+            tempState = tempState.parent
+            stepsList.insert(0,tempState)
+            if tempState.jars == initState.jars:
+                break
+            count = count+1
+            if count>100:
+                for val in stepsList:
+                    print(val)
+                raise ValueError("count really shouldn't get this high")
+        return stepsList.reverse()
+        
+        
+   
 
 
 def jars0():
@@ -375,16 +465,18 @@ def jars424():
 def main():      
     #try:
         start = time.perf_counter()
-        initState = State(jars18())
-        #shortestSolution = ChaosSearch(initState)
-        shortestSolution = DepthFirstSearch(initState)
+        initState = State(jars424())
+        shortestSolution = ChaosSearch(initState)
+        #shortestSolution = DepthFirstSearch(initState)
         #shortestSolution = BreadthFirstSearch(initState)
     
         shortestSolution.PrintLineage()
         print("Total Steps: "+str(shortestSolution.depth))
         
         end = time.perf_counter()
-    
+        for val in StreamlineSolution(shortestSolution).shortList:
+            val.PrintJars()
+        
         print("Time to run: "+str((end-start))[:5]+"s")
     #except Exception:
     #    from IPython import embed
